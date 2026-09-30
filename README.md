@@ -1,0 +1,2 @@
+# Sh-ri
+Shōri
