@@ -124,30 +124,54 @@ function getApiKey() {
 }
 
 async function callGeminiApi(apiKey, prompt) {
-  const model = localStorage.getItem("shori_ai_model") || "gemini-1.5-flash";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const preferredModel = localStorage.getItem("shori_ai_model") || "gemini-3.5-flash";
+  const fallbackModels = [preferredModel, "gemini-flash-lite-latest", "gemini-3.5-flash", "gemini-3.8-flash"];
+  // Deduplicate
+  const modelsToTry = [...new Set(fallbackModels)];
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.3,
-        maxOutputTokens: 1200,
+  let lastError = null;
+
+  for (const model of modelsToTry) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.4,
+            maxOutputTokens: 1600,
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errMessage = errorData.error?.message || `HTTP ${response.status}`;
+        lastError = new Error(errMessage);
+        // Try next fallback if 503 or 404
+        if (response.status === 503 || response.status === 404) {
+          continue;
+        }
+        throw lastError;
       }
-    })
-  });
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+      const data = await response.json();
+      const parts = data.candidates?.[0]?.content?.parts || [];
+      // Get the text from the non-thought part or concatenate
+      const textPart = parts.find((p) => p.text && !p.thought) || parts[0];
+      const text = textPart?.text;
+      if (!text) throw new Error("Empty response from AI model");
+      return text;
+    } catch (err) {
+      lastError = err;
+      // If error is network or retryable, continue to next model
+    }
   }
 
-  const data = await response.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error("Empty response from AI model");
-  return text;
+  throw lastError || new Error("Failed to contact Gemini API");
 }
 
 function extractJsonFromResponse(text) {

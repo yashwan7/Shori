@@ -165,9 +165,10 @@ export function SettingsPage() {
               Active Gemini Model
             </label>
             <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)}>
-              <option value="gemini-1.5-flash">Gemini 1.5 Flash (Ultra-fast & Recommended)</option>
-              <option value="gemini-2.0-flash">Gemini 2.0 Flash (Next-Gen High Speed)</option>
-              <option value="gemini-1.5-pro">Gemini 1.5 Pro (Deep Complex Reasoning)</option>
+              <option value="gemini-3.5-flash">Gemini 3.5 Flash (Recommended - Balanced)</option>
+              <option value="gemini-flash-lite-latest">Gemini 3.5 Flash Lite (High Availability & Fast)</option>
+              <option value="gemini-3.8-flash">Gemini 3.8 Flash (Next-Gen Flagship)</option>
+              <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (Deep Complex Reasoning)</option>
             </select>
           </div>
 
