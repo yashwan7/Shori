@@ -1,1 +1,1 @@
-# ⚡ SHORI — Perso
+# SHORI —
