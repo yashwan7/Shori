@@ -224,6 +224,12 @@ export async function fetchFullUserData(userId) {
         supabase.from("goals").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
       ]);
 
+    // If database queries fail (e.g. table not found or auth session missing), do not overwrite local state
+    if (tasksRes.error || dsaRes.error || gsocOrgsRes.error) {
+      console.warn("Database queries returned error, preserving local workspace:", tasksRes.error || dsaRes.error);
+      return null;
+    }
+
     // Check if new user with empty data; if totally empty, seed starter workspace
     const hasData =
       (tasksRes.data && tasksRes.data.length > 0) ||
@@ -232,7 +238,8 @@ export async function fetchFullUserData(userId) {
 
     if (!hasData) {
       console.log("Seeding initial workspace records for user:", userId);
-      return await seedNewUserWorkspace(userId, profileData);
+      const seeded = await seedNewUserWorkspace(userId, profileData);
+      return seeded;
     }
 
     // Transform DB snake_case records into frontend schema
@@ -438,7 +445,7 @@ export async function seedNewUserWorkspace(userId, profileData = {}) {
       ai_review: c.aiReview || {},
     }));
 
-    await Promise.allSettled([
+    const insertResults = await Promise.allSettled([
       supabase.from("tasks").insert(taskInserts),
       supabase.from("dsa_problems").insert(dsaInserts),
       supabase.from("gsoc_organizations").insert(orgInserts),
@@ -446,11 +453,17 @@ export async function seedNewUserWorkspace(userId, profileData = {}) {
       supabase.from("daily_checkins").insert(checkinInserts),
     ]);
 
+    const anySuccess = insertResults.some((r) => r.status === "fulfilled" && !r.value?.error);
+    if (!anySuccess) {
+      console.warn("Seeding failed or was blocked by database RLS:", insertResults);
+      return null;
+    }
+
     // Return fresh structured data
     return await fetchFullUserData(userId);
   } catch (err) {
     console.warn("Seeding notice:", err);
-    return initialData;
+    return null;
   }
 }
 

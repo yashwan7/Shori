@@ -253,13 +253,20 @@ export function AppProvider({ children }) {
     setAuthLoading(true);
     try {
       const data = await signUpUser(formData);
-      if (data.user) {
+      if (data.session && data.user) {
         setUser(data.user);
         setSession(data.session);
         setIsCloudConnected(true);
         await loadUserDatabaseData(data.user.id);
         showToast("Account created successfully! Workspace ready.");
         return { success: true };
+      } else if (data.user) {
+        // Supabase has 'Confirm email' enabled - user created but no session yet
+        return {
+          success: true,
+          needsConfirmation: true,
+          email: formData.email,
+        };
       }
     } catch (err) {
       showToast(err.message || "Registration failed", "error");

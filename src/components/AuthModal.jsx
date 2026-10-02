@@ -27,13 +27,14 @@ export function AuthModal() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [title, setTitle] = useState("Software Engineer & Open Source Contributor");
-  const [targetRole, setTargetRole] = useState("Tier-1 Tech / GSoC 2025");
+  const [targetRole, setTargetRole] = useState("Tier-1 Tech / GSoC 2027");
   const [leetcodeUsername, setLeetcodeUsername] = useState("");
   const [githubUsername, setGithubUsername] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [confirmationSent, setConfirmationSent] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,7 +75,11 @@ export function AuthModal() {
           githubUsername: githubUsername || "yashwan7",
         });
         if (res.success) {
-          setActiveModal(null);
+          if (res.needsConfirmation) {
+            setConfirmationSent(true);
+          } else {
+            setActiveModal(null);
+          }
         } else {
           setErrorMsg(res.error || "Sign up failed.");
         }
@@ -170,8 +175,61 @@ export function AuthModal() {
         </div>
       )}
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} style={{ padding: "24px" }}>
+      {/* Form or Confirmation Sent */}
+      {confirmationSent ? (
+        <div style={{ padding: "32px 24px", textAlign: "center" }}>
+          <div
+            style={{
+              width: "56px",
+              height: "56px",
+              borderRadius: "50%",
+              background: "rgba(16, 185, 129, 0.15)",
+              color: "var(--emerald)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 16px auto",
+            }}
+          >
+            <Mail size={28} />
+          </div>
+          <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--text-white)", marginBottom: "8px" }}>
+            Check Your Email
+          </h3>
+          <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "20px" }}>
+            Supabase sent a confirmation link to <strong style={{ color: "var(--cyan)" }}>{email}</strong>. Once confirmed, you can sign in and your workspace will sync to the cloud!
+          </p>
+
+          <div
+            style={{
+              padding: "12px 14px",
+              borderRadius: "var(--radius-sm)",
+              backgroundColor: "rgba(245, 158, 11, 0.1)",
+              border: "1px solid rgba(245, 158, 11, 0.25)",
+              color: "var(--text-secondary)",
+              fontSize: "12px",
+              textAlign: "left",
+              marginBottom: "20px",
+              lineHeight: 1.5,
+            }}
+          >
+            ⚡ <strong style={{ color: "var(--amber)" }}>Pro-Tip (Skip Email Verification):</strong> In your Supabase Dashboard &rarr; <strong>Authentication</strong> &rarr; <strong>Providers</strong> &rarr; <strong>Email</strong> &rarr; toggle <strong>OFF</strong> <em>"Confirm email"</em> and click Save. That allows instant logins without waiting for email!
+          </div>
+
+          <button
+            type="button"
+            className="btn btn-primary"
+            style={{ width: "100%", justifyContent: "center" }}
+            onClick={() => {
+              setConfirmationSent(false);
+              setMode("signin");
+            }}
+          >
+            Go to Sign In
+          </button>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} style={{ padding: "24px" }}>
         {errorMsg && (
           <div
             style={{
@@ -461,6 +519,7 @@ export function AuthModal() {
           </button>
         </div>
       </form>
+      )}
     </div>
   );
 }
