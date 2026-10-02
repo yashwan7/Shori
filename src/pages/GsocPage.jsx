@@ -15,11 +15,16 @@ import {
   ChevronRight,
   TrendingUp,
   Trash2,
+  RefreshCw,
 } from "lucide-react";
+import { GithubIcon } from "../components/GithubIcon";
 
 export function GsocPage() {
   const {
     state,
+    githubStats,
+    refreshExternalStats,
+    isStatsLoading,
     updateGsocMilestoneStatus,
     addGsocMilestone,
     deleteGsocOrg,
@@ -28,16 +33,16 @@ export function GsocPage() {
     setActiveModal,
   } = useApp();
 
-  const { gsoc } = state;
+  const { gsoc, profile } = state;
   const [activeTabSub, setActiveTabSub] = useState("roadmap"); // 'roadmap' | 'orgs' | 'contributions' | 'deadlines'
   const [newMilestoneTitle, setNewMilestoneTitle] = useState("");
 
-  const completedMilestones = gsoc.milestones.filter((m) => m.status === "Completed").length;
-  const totalMilestones = gsoc.milestones.length;
+  const completedMilestones = (gsoc.milestones || []).filter((m) => m.status === "Completed").length;
+  const totalMilestones = (gsoc.milestones || []).length || 9;
   const roadmapPct = Math.round((completedMilestones / (totalMilestones || 1)) * 100);
 
-  const mergedCount = gsoc.contributions.filter((c) => c.status === "Merged").length;
-  const underReviewCount = gsoc.contributions.filter((c) => c.status === "Under Review").length;
+  const mergedCount = (gsoc.contributions || []).filter((c) => c.status === "Merged").length;
+  const underReviewCount = (gsoc.contributions || []).filter((c) => c.status === "Under Review").length;
 
   const handleAddMilestone = (e) => {
     e.preventDefault();
@@ -79,11 +84,11 @@ export function GsocPage() {
             >
               <GitBranch size={20} />
             </div>
-            <h1 style={{ fontSize: "22px", fontWeight: 700 }}>Google Summer of Code {gsoc.targetYear}</h1>
+            <h1 style={{ fontSize: "22px", fontWeight: 700 }}>Google Summer of Code {gsoc.targetYear || 2025}</h1>
             <span className="badge badge-amber">{roadmapPct}% Roadmap Ready</span>
           </div>
           <p style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
-            Current Focus Phase: <strong style={{ color: "var(--text-white)" }}>{gsoc.currentMilestone}</strong>
+            Current Focus Phase: <strong style={{ color: "var(--text-white)" }}>{gsoc.currentMilestone || "Drafting Formal Proposal"}</strong>
           </p>
         </div>
 
@@ -105,7 +110,74 @@ export function GsocPage() {
         </div>
       </div>
 
-      {/* 2. Top Stats strip */}
+      {/* 2. Live GitHub Synced Ribbon */}
+      <div
+        style={{
+          background: "linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(99, 102, 241, 0.08))",
+          border: "1px solid rgba(56, 189, 248, 0.3)",
+          borderRadius: "var(--radius-lg)",
+          padding: "16px 20px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "14px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div
+            style={{
+              width: "32px",
+              height: "32px",
+              borderRadius: "var(--radius-sm)",
+              backgroundColor: "rgba(56, 189, 248, 0.2)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "var(--cyan)",
+            }}
+          >
+            <GithubIcon size={18} />
+          </div>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-white)" }}>
+                GitHub Telemetry: @{profile.githubUsername || "yashwan7"}
+              </span>
+              <span className={`badge ${githubStats?.isLive ? "badge-emerald" : "badge-neutral"}`}>
+                {githubStats?.isLive ? "Live Synced" : "Cached"}
+              </span>
+            </div>
+            <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+              {githubStats?.publicRepos || 18} Repos • {githubStats?.totalCommits || 38} Commits Tracked • {gsoc.contributions?.length || 3} GSoC PRs/Issues
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <button
+            onClick={refreshExternalStats}
+            disabled={isStatsLoading}
+            className="btn btn-secondary btn-sm"
+          >
+            <RefreshCw size={14} className={isStatsLoading ? "spin" : ""} />
+            <span>{isStatsLoading ? "Syncing..." : "Refresh GitHub"}</span>
+          </button>
+
+          <a
+            href={`https://github.com/${profile.githubUsername || "yashwan7"}`}
+            target="_blank"
+            rel="noreferrer"
+            className="btn btn-ghost btn-sm"
+            style={{ gap: "4px" }}
+          >
+            <span>GitHub Profile</span>
+            <ExternalLink size={12} />
+          </a>
+        </div>
+      </div>
+
+      {/* 3. Top Stats strip */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
         <div className="glass-panel" style={{ padding: "18px" }}>
           <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "4px" }}>
@@ -127,10 +199,10 @@ export function GsocPage() {
             Organizations Tracked
           </div>
           <div className="mono" style={{ fontSize: "24px", fontWeight: 800, color: "var(--cyan)" }}>
-            {gsoc.organizations.length}
+            {(gsoc.organizations || []).length}
           </div>
           <div style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "6px" }}>
-            Top: {gsoc.organizations[0]?.name || "None"}
+            Top: {gsoc.organizations?.[0]?.name || "None"}
           </div>
         </div>
 
@@ -139,7 +211,7 @@ export function GsocPage() {
             Contributions
           </div>
           <div className="mono" style={{ fontSize: "24px", fontWeight: 800, color: "var(--emerald)" }}>
-            {gsoc.contributions.length}
+            {(gsoc.contributions || []).length}
           </div>
           <div style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "6px" }}>
             {mergedCount} Merged • {underReviewCount} Under Review
@@ -159,8 +231,8 @@ export function GsocPage() {
         </div>
       </div>
 
-      {/* 3. Section Selector Tabs */}
-      <div style={{ display: "flex", gap: "8px", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "12px" }}>
+      {/* 4. Section Selector Tabs */}
+      <div style={{ display: "flex", gap: "8px", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "12px", overflowX: "auto" }}>
         <button
           onClick={() => setActiveTabSub("roadmap")}
           className={`btn ${activeTabSub === "roadmap" ? "btn-primary" : "btn-secondary"}`}
@@ -171,13 +243,13 @@ export function GsocPage() {
           onClick={() => setActiveTabSub("orgs")}
           className={`btn ${activeTabSub === "orgs" ? "btn-primary" : "btn-secondary"}`}
         >
-          <span>Organizations & Projects ({gsoc.organizations.length})</span>
+          <span>Organizations & Projects ({(gsoc.organizations || []).length})</span>
         </button>
         <button
           onClick={() => setActiveTabSub("contributions")}
           className={`btn ${activeTabSub === "contributions" ? "btn-primary" : "btn-secondary"}`}
         >
-          <span>Contributions & PRs ({gsoc.contributions.length})</span>
+          <span>Contributions & PRs ({(gsoc.contributions || []).length})</span>
         </button>
         <button
           onClick={() => setActiveTabSub("deadlines")}
@@ -187,7 +259,7 @@ export function GsocPage() {
         </button>
       </div>
 
-      {/* 4. Tab Sub-Views */}
+      {/* 5. Tab Sub-Views */}
 
       {/* Sub-view A: Roadmap Milestones */}
       {activeTabSub === "roadmap" && (
@@ -198,7 +270,7 @@ export function GsocPage() {
             </h2>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {gsoc.milestones.map((milestone, idx) => {
+              {(gsoc.milestones || []).map((milestone, idx) => {
                 const isCompleted = milestone.status === "Completed";
                 const isInProgress = milestone.status === "In Progress";
 
@@ -304,7 +376,7 @@ export function GsocPage() {
       {/* Sub-view B: Organizations & Projects */}
       {activeTabSub === "orgs" && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "18px" }}>
-          {gsoc.organizations.map((org) => (
+          {(gsoc.organizations || []).map((org) => (
             <div key={org.id} className="glass-panel" style={{ padding: "20px", display: "flex", flexDirection: "column" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
                 <div>
@@ -413,7 +485,7 @@ export function GsocPage() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {gsoc.contributions.map((c) => {
+            {(gsoc.contributions || []).map((c) => {
               const statusBadge =
                 c.status === "Merged"
                   ? "badge-emerald"
@@ -459,19 +531,22 @@ export function GsocPage() {
                             href={c.url}
                             target="_blank"
                             rel="noreferrer"
-                            style={{ color: "var(--text-muted)" }}
+                            style={{ color: "var(--text-muted)", display: "inline-flex" }}
+                            title="Open Link"
                           >
                             <ExternalLink size={14} />
                           </a>
                         )}
                       </div>
+
                       <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "11px", color: "var(--text-muted)", marginTop: "4px" }}>
-                        <span style={{ color: "var(--text-primary)" }}>{c.org}</span>
+                        <span>Org: <strong style={{ color: "var(--cyan)" }}>{c.org}</strong></span>
                         <span>•</span>
-                        <span>{c.date}</span>
+                        <span>Date: {c.date}</span>
                       </div>
+
                       {c.notes && (
-                        <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "4px" }}>
+                        <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "6px" }}>
                           {c.notes}
                         </div>
                       )}
@@ -484,6 +559,7 @@ export function GsocPage() {
                       onClick={() => deleteGsocContribution(c.id)}
                       className="btn btn-ghost btn-icon"
                       style={{ color: "var(--rose)" }}
+                      title="Remove contribution"
                     >
                       <Trash2 size={15} />
                     </button>
@@ -491,47 +567,50 @@ export function GsocPage() {
                 </div>
               );
             })}
+
+            {(gsoc.contributions || []).length === 0 && (
+              <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
+                No contributions logged yet. Click "Log Contribution" to record your first PR or Issue!
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* Sub-view D: Timeline & Learning Requirements */}
+      {/* Sub-view D: Timeline & Learning */}
       {activeTabSub === "deadlines" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }} className="gsoc-split-grid">
-          {/* Deadlines list */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "18px" }}>
+          {/* Critical Deadlines list */}
           <div className="glass-panel" style={{ padding: "20px" }}>
-            <h3 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "16px" }}>
-              Official GSoC {gsoc.targetYear || 2027} Calendar
-            </h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {gsoc.deadlines.map((d) => (
+            <h2 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "14px" }}>
+              Official GSoC {gsoc.targetYear || 2027} Schedule
+            </h2>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {(gsoc.deadlines || []).map((d) => (
                 <div
                   key={d.id}
                   style={{
                     padding: "12px 14px",
-                    borderRadius: "var(--radius-md)",
-                    backgroundColor: d.critical ? "rgba(244, 63, 94, 0.08)" : "rgba(255, 255, 255, 0.02)",
-                    border: d.critical ? "1px solid rgba(244, 63, 94, 0.3)" : "1px solid var(--border-subtle)",
+                    borderRadius: "var(--radius-sm)",
+                    backgroundColor: "rgba(255, 255, 255, 0.02)",
+                    border: d.critical
+                      ? "1px solid rgba(244, 63, 94, 0.4)"
+                      : "1px solid var(--border-subtle)",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
                   }}
                 >
-                  <div>
-                    <div style={{ fontSize: "13px", fontWeight: 600, color: d.critical ? "var(--rose)" : "var(--text-white)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <Calendar size={15} color={d.critical ? "var(--rose)" : "var(--text-muted)"} />
+                    <span style={{ fontSize: "13px", fontWeight: d.critical ? 600 : 400, color: "var(--text-white)" }}>
                       {d.title}
-                    </div>
-                    <div className="mono" style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "2px" }}>
-                      {d.date}
-                    </div>
+                    </span>
                   </div>
-                  {d.passed ? (
-                    <span className="badge badge-emerald">Passed</span>
-                  ) : d.critical ? (
-                    <span className="badge badge-rose">Critical Action</span>
-                  ) : (
-                    <span className="badge badge-cyan">Upcoming</span>
-                  )}
+                  <span className={`badge ${d.passed ? "badge-neutral" : d.critical ? "badge-rose" : "badge-amber"}`}>
+                    {d.date}
+                  </span>
                 </div>
               ))}
             </div>
@@ -539,17 +618,18 @@ export function GsocPage() {
 
           {/* Learning Requirements checklist */}
           <div className="glass-panel" style={{ padding: "20px" }}>
-            <h3 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "16px" }}>
-              Technical Learning Requirements
-            </h3>
+            <h2 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "14px" }}>
+              Target Tech & Learning Checklist
+            </h2>
+
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {gsoc.learningRequirements.map((req) => (
+              {(gsoc.learningRequirements || []).map((req) => (
                 <div
                   key={req.id}
                   onClick={() => toggleLearningRequirement(req.id)}
                   style={{
                     padding: "12px 14px",
-                    borderRadius: "var(--radius-md)",
+                    borderRadius: "var(--radius-sm)",
                     backgroundColor: "rgba(255, 255, 255, 0.02)",
                     border: "1px solid var(--border-subtle)",
                     display: "flex",
@@ -558,15 +638,22 @@ export function GsocPage() {
                     cursor: "pointer",
                   }}
                 >
-                  {req.done ? (
-                    <CheckSquare size={18} color="var(--emerald)" />
-                  ) : (
-                    <Square size={18} color="var(--text-muted)" />
-                  )}
+                  <button
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: req.done ? "var(--emerald)" : "var(--text-muted)",
+                      padding: 0,
+                      cursor: "pointer",
+                      display: "flex",
+                    }}
+                  >
+                    {req.done ? <CheckSquare size={17} /> : <Square size={17} />}
+                  </button>
                   <span
                     style={{
                       fontSize: "13px",
-                      color: req.done ? "var(--text-muted)" : "var(--text-white)",
+                      color: req.done ? "var(--text-secondary)" : "var(--text-white)",
                       textDecoration: req.done ? "line-through" : "none",
                     }}
                   >
