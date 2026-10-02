@@ -27,7 +27,7 @@ export function AiPlannerPage() {
   const [chatLog, setChatLog] = useState([
     {
       role: "assistant",
-      text: `Hello ${state.profile?.name || "Yashwanth"}! I am your Technical Career Command AI. I continuously analyze your DSA progress (${state.dsa.problems.filter(p => p.status === 'Solved').length} solved), your GSoC 2025 proposal roadmap, and active engineering goals to optimize your deep-work hours. Click "Generate Today's Plan" or ask me any strategic question below.`,
+      text: `Hello ${state.profile?.name || "Yashwanth"}! I am your Technical Career Command AI. I continuously analyze your DSA progress (${state.dsa.problems.filter(p => p.status === 'Solved').length} solved), your GSoC 2027 proposal roadmap, and active engineering goals to optimize your deep-work hours. Click "Generate Today's Plan" or ask me any strategic question below.`,
     },
   ]);
 

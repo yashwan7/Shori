@@ -3,7 +3,7 @@ export const initialData = {
   profile: {
     name: "Yashwanth",
     title: "Software Engineer & Open Source Contributor",
-    target: "GSoC 2025 / Tier-1 Tech",
+    target: "GSoC 2027 / Tier-1 Tech",
     streak: 19,
     streakLastUpdated: "2025-03-29",
     weeklyGoalHours: 35,
@@ -177,18 +177,18 @@ export const initialData = {
   },
 
   gsoc: {
-    targetYear: 2025,
-    currentMilestone: "Drafting Formal Proposal & Benchmarking",
+    targetYear: 2027,
+    currentMilestone: "Orgs Shortlisting & Codebase Deep Dive (GSoC 2027 Prep)",
     milestones: [
-      { id: "m-1", title: "Research organizations", status: "Completed", date: "2025-02-10", desc: "Shortlisted Apache Arrow, pgvector & OpenCV" },
-      { id: "m-2", title: "Choose projects", status: "Completed", date: "2025-02-22", desc: "Selected Apache Arrow SIMD vector kernel acceleration" },
-      { id: "m-3", title: "Study codebase", status: "Completed", date: "2025-03-05", desc: "Navigated cpp/src/arrow/compute and test fixtures" },
-      { id: "m-4", title: "Make first contribution", status: "Completed", date: "2025-03-12", desc: "Fixed doc typos and added missing test assertion" },
-      { id: "m-5", title: "Open first issue", status: "Completed", date: "2025-03-16", desc: "Reported AVX2 fallback bug in string concatenation" },
-      { id: "m-6", title: "Submit PR", status: "In Progress", date: "2025-03-26", desc: "PR #41829: Vectorized substring search optimizations" },
-      { id: "m-7", title: "Build relationship with maintainers", status: "In Progress", date: "2025-03-28", desc: "Active on mailing list and weekly developer syncs" },
-      { id: "m-8", title: "Prepare proposal", status: "In Progress", date: "2025-03-31", desc: "Writing 12-page roadmap with timeline, risks & test plans" },
-      { id: "m-9", title: "Finalize proposal", status: "Not Started", date: "2025-04-06", desc: "Submit to GSoC portal before deadline" }
+      { id: "m-1", title: "Research repeating organizations", status: "Completed", date: "2026-08-15", desc: "Shortlisted Apache, CNCF, KDE, pgvector & OpenCV" },
+      { id: "m-2", title: "Setup development environment", status: "Completed", date: "2026-09-01", desc: "Configured compilers, CMake, Docker & local build chains" },
+      { id: "m-3", title: "Study targeted codebases", status: "In Progress", date: "2026-10-15", desc: "Navigating repository architecture, issue trackers & testing suites" },
+      { id: "m-4", title: "First Good-First-Issue PR", status: "In Progress", date: "2026-11-20", desc: "Fix documentation, small bug fixes and missing test assertions" },
+      { id: "m-5", title: "Engage with community & maintainers", status: "Not Started", date: "2026-12-15", desc: "Join Slack/Discord/Mailing lists and participate in developer discussions" },
+      { id: "m-6", title: "Tackle core feature / RFC", status: "Not Started", date: "2027-01-20", desc: "Propose and implement substantial pull requests demonstrating technical mastery" },
+      { id: "m-7", title: "Align with announced GSoC 2027 project ideas", status: "Not Started", date: "2027-02-28", desc: "Review official ideas list as soon as Google announces organizations" },
+      { id: "m-8", title: "Draft comprehensive proposal", status: "Not Started", date: "2027-03-25", desc: "Detailed architectural roadmap, deliverable milestones, timeline & contingency plans" },
+      { id: "m-9", title: "Submit GSoC 2027 Proposal", status: "Not Started", date: "2027-04-06", desc: "Final submission on the official Google Summer of Code portal before deadline" }
     ],
     organizations: [
       {
@@ -199,7 +199,7 @@ export const initialData = {
         projectIdea: "SIMD Acceleration for In-Memory Compute Kernels",
         matchPercentage: 94,
         status: "Primary Focus",
-        notes: "Maintainer Antoine Pitrou gave constructive review on draft design doc."
+        notes: "High impact project with active community and consistent GSoC participation."
       },
       {
         id: "org-2",
@@ -219,7 +219,7 @@ export const initialData = {
         projectIdea: "Modernized Point Cloud & 3D Feature Matching",
         matchPercentage: 78,
         status: "Explored",
-        notes: "Backup option; maintainer guidelines require heavy pre-proposal review."
+        notes: "Solid recurring GSoC org; maintainer guidelines require early pull requests."
       }
     ],
     contributions: [
@@ -230,7 +230,7 @@ export const initialData = {
         org: "Apache Arrow",
         url: "https://github.com/apache/arrow/pull/41829",
         status: "Under Review",
-        date: "2025-03-24",
+        date: "2026-09-24",
         notes: "Benchmarked 3.4x speedup on 10MB columnar string arrays. Passing all CI except MacOS ARM64."
       },
       {
@@ -240,7 +240,7 @@ export const initialData = {
         org: "Apache Arrow",
         url: "https://github.com/apache/arrow/issues/41815",
         status: "Merged",
-        date: "2025-03-14",
+        date: "2026-09-14",
         notes: "Triaged with Valgrind reproducer and accepted by core team."
       },
       {
@@ -250,17 +250,17 @@ export const initialData = {
         org: "PostgreSQL / pgvector",
         url: "https://github.com/pgvector/pgvector/pull/340",
         status: "Merged",
-        date: "2025-03-10",
+        date: "2026-09-10",
         notes: "Merged by Andrew Kane. Built good goodwill with core maintainer."
       }
     ],
     deadlines: [
-      { id: "d-1", title: "Organizations Announced", date: "2025-02-27", passed: true },
-      { id: "d-2", title: "Student Application Opens", date: "2025-03-18", passed: true },
-      { id: "d-3", title: "Proposal Submission Deadline", date: "2025-04-08", passed: false, critical: true },
-      { id: "d-4", title: "Accepted Projects Announced", date: "2025-05-01", passed: false },
-      { id: "d-5", title: "Community Bonding Period", date: "2025-05-02 to 2025-05-26", passed: false },
-      { id: "d-6", title: "Coding Period Starts", date: "2025-05-27", passed: false }
+      { id: "d-1", title: "Organizations Announced", date: "2027-02-25", passed: false },
+      { id: "d-2", title: "Contributor Applications Open", date: "2027-03-16", passed: false },
+      { id: "d-3", title: "Proposal Submission Deadline", date: "2027-04-06", passed: false, critical: true },
+      { id: "d-4", title: "Accepted Projects Announced", date: "2027-05-04", passed: false },
+      { id: "d-5", title: "Community Bonding Period", date: "2027-05-05 to 2027-05-30", passed: false },
+      { id: "d-6", title: "Coding Period Starts", date: "2027-05-31", passed: false }
     ],
     learningRequirements: [
       { id: "lr-1", text: "Master Google Benchmark & perf CPU profiling", done: true },

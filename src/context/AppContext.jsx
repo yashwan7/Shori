@@ -11,12 +11,24 @@ export function AppProvider({ children }) {
       if (saved) {
         const parsed = JSON.parse(saved);
         // Ensure core structures exist
+        const mergedGsoc = { ...initialData.gsoc, ...(parsed.gsoc || {}) };
+        if (mergedGsoc.targetYear === 2025) {
+          mergedGsoc.targetYear = 2027;
+          mergedGsoc.deadlines = initialData.gsoc.deadlines;
+          mergedGsoc.milestones = initialData.gsoc.milestones;
+          mergedGsoc.currentMilestone = initialData.gsoc.currentMilestone;
+        }
+        const mergedProfile = { ...initialData.profile, ...(parsed.profile || {}) };
+        if (mergedProfile.target && mergedProfile.target.includes("2025")) {
+          mergedProfile.target = mergedProfile.target.replace("2025", "2027");
+        }
+
         return {
           ...initialData,
           ...parsed,
-          profile: { ...initialData.profile, ...(parsed.profile || {}) },
+          profile: mergedProfile,
           dsa: { ...initialData.dsa, ...(parsed.dsa || {}) },
-          gsoc: { ...initialData.gsoc, ...(parsed.gsoc || {}) },
+          gsoc: mergedGsoc,
         };
       }
     } catch (e) {
@@ -25,9 +37,24 @@ export function AppProvider({ children }) {
     return initialData;
   });
 
-  const [activeTab, setActiveTab] = useState("Dashboard");
+  const [activeTab, setActiveTab] = useState(() => {
+    try {
+      return localStorage.getItem("shori_active_tab") || "Dashboard";
+    } catch {
+      return "Dashboard";
+    }
+  });
   const [activeModal, setActiveModal] = useState(null); // { type: 'addTask' | 'addProblem' | ..., data?: any }
   const [notification, setNotification] = useState(null);
+
+  // Sync activeTab to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem("shori_active_tab", activeTab);
+    } catch (e) {
+      console.error("Failed to save activeTab:", e);
+    }
+  }, [activeTab]);
 
   // Sync state changes to localStorage
   useEffect(() => {

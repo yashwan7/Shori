@@ -151,7 +151,7 @@ export function GsocPage() {
             Critical Proposal Due
           </div>
           <div style={{ fontSize: "18px", fontWeight: 800, color: "var(--rose)", marginTop: "4px" }}>
-            April 8, 2025
+            {gsoc.deadlines?.find((d) => d.critical)?.date || "April 7, 2027"}
           </div>
           <div style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "6px" }}>
             18:00 UTC hard cutoff
@@ -501,7 +501,7 @@ export function GsocPage() {
           {/* Deadlines list */}
           <div className="glass-panel" style={{ padding: "20px" }}>
             <h3 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "16px" }}>
-              Official GSoC 2025 Calendar
+              Official GSoC {gsoc.targetYear || 2027} Calendar
             </h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               {gsoc.deadlines.map((d) => (

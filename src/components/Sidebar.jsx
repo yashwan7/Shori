@@ -25,7 +25,7 @@ export function Sidebar() {
   const navItems = [
     { id: "Dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "DSA", label: "DSA Tracker", icon: Code2, badge: revisionCount > 0 ? `${revisionCount} rev` : null, badgeColor: "badge-amber" },
-    { id: "GSoC", label: "GSoC 2025", icon: GitBranch, highlight: true },
+    { id: "GSoC", label: "GSoC 2027", icon: GitBranch, highlight: true },
     { id: "Goals", label: "Other Goals", icon: Target, badge: state.goals.length },
     { id: "Tasks", label: "Task Engine", icon: CheckSquare, badge: pendingTasks, badgeColor: "badge-cyan" },
     { id: "Analytics", label: "Analytics", icon: BarChart3 },

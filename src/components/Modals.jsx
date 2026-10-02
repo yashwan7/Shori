@@ -198,7 +198,7 @@ function TaskModal({ data }) {
               </label>
               <select value={goalId} onChange={(e) => setGoalId(e.target.value)}>
                 <option value="dsa">DSA Practice</option>
-                <option value="gsoc">GSoC 2025</option>
+                <option value="gsoc">GSoC 2027</option>
                 {state.goals.map((g) => (
                   <option key={g.id} value={g.id}>
                     {g.name}
