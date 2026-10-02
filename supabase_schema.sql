@@ -236,7 +236,7 @@ begin
     new.email,
     coalesce(new.raw_user_meta_data->>'name', split_part(new.email, '@', 1)),
     coalesce(new.raw_user_meta_data->>'title', 'Software Engineer & Open Source Contributor'),
-    coalesce(new.raw_user_meta_data->>'target', 'GSoC 2025 / Tier-1 Tech'),
+    coalesce(new.raw_user_meta_data->>'target', 'GSoC 2027 / Tier-1 Tech'),
     coalesce(new.raw_user_meta_data->>'leetcode_username', 'yashwanth'),
     coalesce(new.raw_user_meta_data->>'github_username', 'yashwan7')
   )
