@@ -1,97 +1,93 @@
-# SHORI (勝利) — Personal Command Center
+# ⚡ SHORI — Personal Engineering Command Center (React 19 + Supabase Full-Stack)
 
-> A modern personal productivity, career-planning, and telemetry command center designed for ambitious software engineers tracking **DSA**, **Google Summer of Code (GSoC)**, and **Core Technical Projects**.
+**Shori** is an advanced personal engineering productivity and career-planning command center engineered for ambitious software engineers, competitive programmers, and open-source contributors targeting **GSoC** and **Tier-1 Tech**.
 
----
-
-## 🌟 Key Features
-
-### 1. Unified Mission Dashboard
-- **Live Day Streak & Telemetry**: Visual momentum tracking with real-time indicators.
-- **Goal Cards**: Dedicated overview cards for **DSA Mastery**, **GSoC 2025**, and **Custom Technical Tracks**.
-- **Today's Directives**: High-priority task dispatch with one-click completion.
-- **Weekly Telemetry**: Visual deep-work bar chart and pace indicator.
-
-### 2. Dedicated DSA Tracker
-- **13+ Core Topics**: Arrays, Strings, Linked Lists, Stack, Queue, Hashing, Trees, Graphs, Recursion, Dynamic Programming, Greedy, Binary Search, and Sorting.
-- **Difficulty Analytics**: Solved breakdown across Easy, Medium, and Hard.
-- **Spaced Repetition Queue**: Track problems needing revision vs revised vs solid.
-- **Full Problem CRUD**: Log problem links, complexity notes, time spent, and last practiced dates.
-
-### 3. GSoC 2025 Tracker
-- **Step-by-Step Preparation Roadmap**: 9 core milestones from org exploration to final proposal submission.
-- **Organization Explorer**: Shortlist target orgs (e.g. Apache Arrow, pgvector, OpenCV) with tech stacks and skill match %.
-- **Contribution Telemetry**: Track PRs, issues, merge statuses, and benchmark results.
-- **Official GSoC Calendar**: Deadlines countdown with critical action flags.
-- **Learning Requirements**: Interactive checklist for system-level proficiencies.
-
-### 4. Custom Goals & Engineering Projects
-- Structured tracking for **AI/ML (RAG, Agents)**, **Projects (OrthoTwin, 3D Engine)**, **Skills**, and **College Capstone**.
-- Deliverable checklists with automatic progress percentage calculations.
-
-### 5. AI Personal Planner & Strategic Advisor
-- **Intelligent Daily Plan Synthesis**: Balances DSA revision, GSoC proposal deadlines, and project milestones.
-- **The "WHY" Engine**: Explains the exact technical rationale behind each recommended task.
-- **Interactive Strategic Chat**: Instant answers to *"What should I focus on today?"*, *"What am I falling behind on?"*, *"Am I spending enough time on GSoC?"*, and *"Plan my next 7 days"*.
-- **Direct Adoption**: One-click add AI-generated items straight to Today's Tasks.
-- **Google Gemini API Support** with an automatic built-in heuristic reasoning fallback if offline or no key is present.
-
-### 6. Daily Check-in & AI Review
-- 5 targeted questions capturing accomplishment, categories, deep-work hours, pending blockers, and tomorrow's priority.
-- Generates instant AI tactical critique on:
-  - *What went well*
-  - *What remains*
-  - *Suggested next action*
-  - *Tomorrow's priority*
-- Automatically increments consecutive day streaks.
-
-### 7. Telemetry & Analytics
-- Weekly deep-work rhythm bar chart.
-- Time allocation breakdown by domain (DSA, GSoC, AI/ML, Projects, College).
-- Goal velocity and completion indexes.
-
-### 8. Settings & Data Portability
-- Secure Gemini API key configuration (stored in client localStorage or `.env`).
-- Profile customization (Name, Target Year, Weekly Hour Goal).
-- Complete JSON export and import for seamless multi-device backups.
+Built with **React 19**, **Vite**, **Supabase (PostgreSQL + Auth + RLS)**, and **Live LeetCode & GitHub Telemetry**.
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Key Features
 
-### 1. Install Dependencies
+- 🗄️ **Full Cloud Persistence with Supabase PostgreSQL**: Instant, real-time database sync for all your Tasks, Solved DSA algorithms, GSoC Organizations, Open Source Contributions, Custom Goals, and Daily Check-ins.
+- 🔒 **Row-Level Security (RLS) & Multi-User Auth**: Isolated workspaces with secure Sign In, Sign Up, and OAuth (GitHub/Google).
+- 🔄 **Zero State Loss on Refresh**: Never lose your progress when you reload the page. Data is fetched directly from Supabase with optimistic local caching.
+- ⚡ **Live LeetCode Integration**: Fetches real solved counts (Easy/Medium/Hard), ranking, acceptance rate, and recent submissions for your LeetCode handle.
+- 🐙 **Live GitHub Integration**: Tracks public repositories, weekly commit velocity, and live Pull Request states (Merged / Under Review / Open).
+- 🧠 **AI Personal Planner & Tactical Critique**: Integrated with Google Gemini for automated daily review generation, intelligent schedule planning, and GSoC proposal brainstorming.
+- 📊 **DSA & GSoC Command Desks**: Track roadmap milestones, organization tech stacks, PR reviews, algorithm revision queues, and weekly deep-work velocity.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend**: React 19, Vite, Vanilla Modern CSS Design System (Glassmorphic Cyber Aesthetic)
+- **Database & Auth**: Supabase (PostgreSQL with Row Level Security policies)
+- **Live APIs**: Public LeetCode Telemetry API, GitHub REST API, Google Gemini AI API
+- **Icons**: Lucide Icons & Custom Vector Glyphs
+
+---
+
+## 📋 3-Minute Quick Setup Guide
+
+### Step 1: Clone and Install Dependencies
 ```bash
+git clone https://github.com/yashwan7/Shori.git
+cd Shori
 npm install
 ```
 
-### 2. Configure Environment (Optional)
-```bash
-cp .env.example .env
-# Add your Gemini API key:
-# VITE_AI_API_KEY=your_key_here
-```
-*(Note: Shori will function even without an API key using its smart offline reasoning engine!)*
+### Step 2: Set Up Supabase Cloud Database (Free)
+1. Head over to [supabase.com](https://supabase.com) and create a free project.
+2. Open your project dashboard, navigate to **SQL Editor** &rarr; **New Query**.
+3. Copy the entire contents of [`supabase_schema.sql`](./supabase_schema.sql) and click **RUN**.
+4. Go to **Project Settings** &rarr; **API** and copy:
+   - **Project URL** (e.g. `https://xyzcompany.supabase.co`)
+   - **anon / public key**
 
-### 3. Start Development Server
+### Step 3: Configure Environment Variables
+Create a `.env` file in the root directory (or copy from `.env.example`):
+```env
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-public-key-here
+
+# Optional: Google Gemini AI Key
+VITE_AI_API_KEY=
+```
+
+*(Note: You can also enter or update your Supabase URL & Anon Key directly from the in-app **Database Settings Modal** or **Settings Page** at any time!)*
+
+### Step 4: Launch Shori Locally
 ```bash
 npm run dev
 ```
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-### 4. Build for Production
+---
+
+## 🗄️ Database Tables Schema Overview
+
+| Table | Description |
+|---|---|
+| `profiles` | User bio, avatar, target goal, day streak, deep-work hours, and LeetCode/GitHub handles. |
+| `tasks` | High-priority engineering tasks with category, priority, due date, estimated minutes, and status. |
+| `dsa_problems` | Solved and revising algorithms with topic, difficulty, revision status, notes, and platform URLs. |
+| `gsoc_organizations` | Target GSoC organizations, tech stack tags, repository links, project proposals, and skill matches. |
+| `gsoc_contributions` | Logged Pull Requests, Issues, and Discussions with real-time status (Under Review / Merged / Open). |
+| `daily_checkins` | End-of-day reflection telemetry, hours spent, accomplishments, blockers, and AI tactical reviews. |
+| `goals` | Long-term technical goals with quarterly milestones and progress tracking. |
+
+All tables have **Row Level Security (RLS)** enabled, ensuring users can only read, insert, and update their own records.
+
+---
+
+## 📦 Build for Production
+
 ```bash
 npm run build
 ```
+Production assets are generated in `dist/`.
 
 ---
 
-## 🛠️ Tech Stack & Architecture
-- **Framework**: React 19 + Vite
-- **Styling**: Vanilla Modern CSS Design System (Sleek dark theme, subtle glassmorphism, responsive grids, custom typography)
-- **Icons**: Lucide React
-- **Typography**: Inter & JetBrains Mono (via Google Fonts)
-- **State Layer**: Centralized `AppContext` with persistent `localStorage` synchronization
-- **AI Service**: Google Gemini API (`gemini-1.5-flash` / `gemini-2.0-flash`) + offline contextual reasoning synthesizer
-
----
-
-Built with precision for long-term technical growth.
+## 📄 License
+MIT © [Yashwanth](https://github.com/yashwan7)

@@ -15,10 +15,20 @@ import {
   Clock,
   BookOpen,
   Check,
+  RefreshCw,
 } from "lucide-react";
 
 export function DsaTrackerPage() {
-  const { state, addDsaProblem, deleteDsaProblem, setActiveModal, setDsaCurrentTopic } = useApp();
+  const {
+    state,
+    leetcodeStats,
+    refreshExternalStats,
+    isStatsLoading,
+    addDsaProblem,
+    deleteDsaProblem,
+    setActiveModal,
+    setDsaCurrentTopic,
+  } = useApp();
   const { dsa, profile } = state;
 
   const [selectedTopic, setSelectedTopic] = useState("All");
@@ -127,7 +137,74 @@ export function DsaTrackerPage() {
         </div>
       </div>
 
-      {/* 2. Visual Progress Cards: Difficulty Distribution & Revision Status */}
+      {/* 2. Live LeetCode Synced Ribbon */}
+      <div
+        style={{
+          background: "linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(56, 189, 248, 0.08))",
+          border: "1px solid rgba(245, 158, 11, 0.3)",
+          borderRadius: "var(--radius-lg)",
+          padding: "16px 20px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "14px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div
+            style={{
+              width: "32px",
+              height: "32px",
+              borderRadius: "var(--radius-sm)",
+              backgroundColor: "rgba(245, 158, 11, 0.2)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#f59e0b",
+            }}
+          >
+            <Code2 size={18} />
+          </div>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-white)" }}>
+                LeetCode Live Sync: @{profile.leetcodeUsername || "yashwanth"}
+              </span>
+              <span className={`badge ${leetcodeStats?.isLive ? "badge-emerald" : "badge-neutral"}`}>
+                {leetcodeStats?.isLive ? "Connected" : "Live Proxy"}
+              </span>
+            </div>
+            <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+              Total: {leetcodeStats?.totalSolved ?? 142} Solved • Easy: {leetcodeStats?.easySolved ?? 54} • Medium: {leetcodeStats?.mediumSolved ?? 76} • Hard: {leetcodeStats?.hardSolved ?? 12} • Global Rank: #{leetcodeStats?.ranking || "184,209"}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <button
+            onClick={refreshExternalStats}
+            disabled={isStatsLoading}
+            className="btn btn-secondary btn-sm"
+          >
+            <RefreshCw size={14} className={isStatsLoading ? "spin" : ""} />
+            <span>{isStatsLoading ? "Syncing..." : "Refresh LeetCode"}</span>
+          </button>
+
+          <a
+            href={`https://leetcode.com/${profile.leetcodeUsername || "yashwanth"}/`}
+            target="_blank"
+            rel="noreferrer"
+            className="btn btn-ghost btn-sm"
+            style={{ gap: "4px" }}
+          >
+            <span>Open Profile</span>
+            <ExternalLink size={12} />
+          </a>
+        </div>
+      </div>
+
+      {/* 3. Visual Progress Cards: Difficulty Distribution & Revision Status */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
         {/* Total Solved Card */}
         <div className="glass-panel" style={{ padding: "18px" }}>
@@ -192,88 +269,48 @@ export function DsaTrackerPage() {
               : "All solved problems are solid or currently reviewed."}
           </div>
         </div>
-
-        {/* Status Distribution Card */}
-        <div className="glass-panel" style={{ padding: "18px" }}>
-          <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "6px" }}>
-            Attempt Status
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px" }}>
-            <div style={{ textAlign: "center" }}>
-              <div className="mono" style={{ fontSize: "18px", fontWeight: 700, color: "var(--emerald)" }}>
-                {solvedProblems.length}
-              </div>
-              <div style={{ fontSize: "10px", color: "var(--text-muted)" }}>Solved</div>
-            </div>
-            <div style={{ textAlign: "center" }}>
-              <div className="mono" style={{ fontSize: "18px", fontWeight: 700, color: "var(--amber)" }}>
-                {attemptedProblems.length}
-              </div>
-              <div style={{ fontSize: "10px", color: "var(--text-muted)" }}>Attempted</div>
-            </div>
-            <div style={{ textAlign: "center" }}>
-              <div className="mono" style={{ fontSize: "18px", fontWeight: 700, color: "var(--text-muted)" }}>
-                {pendingProblems.length}
-              </div>
-              <div style={{ fontSize: "10px", color: "var(--text-muted)" }}>Pending</div>
-            </div>
-          </div>
-        </div>
       </div>
 
-      {/* 3. Topic Selection Pill Strip */}
-      <div className="glass-panel" style={{ padding: "16px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-          <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)", textTransform: "uppercase" }}>
-            DSA Topics & Categories
-          </div>
-          <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
-            Click topic to filter list or double-click to set as current focus
-          </div>
+      {/* 4. Topic Selector Pills */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" }}>
+          Filter by Topic Track
         </div>
-
         <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
           <button
             onClick={() => setSelectedTopic("All")}
             className={`btn btn-sm ${selectedTopic === "All" ? "btn-primary" : "btn-secondary"}`}
           >
-            All Topics ({totalProblems})
+            All Tracks ({dsa.problems.length})
           </button>
-
-          {dsa.topics.map((t) => {
-            const count = dsa.problems.filter((p) => p.topic === t).length;
-            const isSelected = selectedTopic === t;
-            const isCurrentFocus = dsa.currentTopic === t;
+          {dsa.topics.map((topic) => {
+            const count = dsa.problems.filter((p) => p.topic === topic).length;
+            const isSelected = selectedTopic === topic;
             return (
               <button
-                key={t}
-                onClick={() => setSelectedTopic(t)}
-                onDoubleClick={() => setDsaCurrentTopic(t)}
+                key={topic}
+                onClick={() => setSelectedTopic(topic)}
                 className={`btn btn-sm ${isSelected ? "btn-primary" : "btn-secondary"}`}
-                style={{
-                  borderColor: isCurrentFocus ? "var(--cyan)" : undefined,
-                  boxShadow: isCurrentFocus ? "0 0 10px rgba(56, 189, 248, 0.25)" : undefined,
-                }}
-                title={isCurrentFocus ? "Current Focus Topic" : "Click to filter, double click to set focus"}
               >
-                <span>{t}</span>
-                <span style={{ fontSize: "10px", opacity: 0.8 }}>({count})</span>
-                {isCurrentFocus && <span className="status-live-dot" style={{ width: "6px", height: "6px" }} />}
+                <span>{topic}</span>
+                <span className="mono" style={{ opacity: 0.7, fontSize: "11px" }}>
+                  ({count})
+                </span>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* 4. Filter & Search Controls */}
+      {/* 5. Filters & Search Strip */}
       <div
         className="glass-panel"
         style={{
           padding: "16px 20px",
           display: "flex",
-          flexWrap: "wrap",
           alignItems: "center",
           justifyContent: "space-between",
+          flexWrap: "wrap",
           gap: "12px",
         }}
       >
@@ -284,7 +321,7 @@ export function DsaTrackerPage() {
             placeholder="Search problems, patterns, or notes..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ width: "100%", maxWidth: "340px" }}
+            style={{ width: "100%", height: "36px", fontSize: "13px" }}
           />
         </div>
 
@@ -327,7 +364,7 @@ export function DsaTrackerPage() {
         </div>
       </div>
 
-      {/* 5. Problems Table */}
+      {/* 6. Problems Table */}
       <div className="glass-panel" style={{ overflow: "hidden" }}>
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>

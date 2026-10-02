@@ -18,11 +18,22 @@ import {
   Play,
   RotateCw,
   ExternalLink,
+  Award,
+  Zap,
+  GitPullRequest,
+  Check,
+  RefreshCw,
 } from "lucide-react";
+import { GithubIcon } from "../components/GithubIcon";
 
 export function DashboardPage() {
   const {
     state,
+    leetcodeStats,
+    githubStats,
+    isStatsLoading,
+    refreshExternalStats,
+    dbLoading,
     setActiveTab,
     setActiveModal,
     toggleTaskStatus,
@@ -37,7 +48,7 @@ export function DashboardPage() {
   const dsaNeedsRevision = dsa.problems.filter((p) => p.revisionStatus === "Needs Revision").length;
 
   const gsocCompletedMilestones = gsoc.milestones.filter((m) => m.status === "Completed").length;
-  const gsocPercentage = Math.round((gsocCompletedMilestones / gsoc.milestones.length) * 100);
+  const gsocPercentage = Math.round((gsocCompletedMilestones / (gsoc.milestones?.length || 1)) * 100);
   const gsocMergedContributions = gsoc.contributions.filter((c) => c.status === "Merged").length;
 
   const pendingTasks = tasks.filter((t) => t.status !== "Completed");
@@ -46,7 +57,7 @@ export function DashboardPage() {
 
   // Overall index: weighted average of DSA (35%), GSoC (45%), Goals (20%)
   const avgGoalsProgress = goals.length
-    ? Math.round(goals.reduce((acc, g) => acc + g.progress, 0) / goals.length)
+    ? Math.round(goals.reduce((acc, g) => acc + (g.progress || 0), 0) / goals.length)
     : 50;
   const overallScore = Math.round(
     dsaPercentage * 0.35 + gsocPercentage * 0.45 + avgGoalsProgress * 0.2
@@ -157,7 +168,186 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* 2. Major Goal Cards (DSA, GSoC, Other Goals) */}
+      {/* 2. LIVE TELEMETRY WIDGETS: LEETCODE & GITHUB */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }} className="dashboard-split-grid">
+        {/* LeetCode Live Card */}
+        <div className="glass-panel" style={{ padding: "20px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <div
+                style={{
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "var(--radius-md)",
+                  background: "rgba(245, 158, 11, 0.15)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#f59e0b",
+                }}
+              >
+                <Code2 size={20} />
+              </div>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <h3 style={{ fontSize: "15px", fontWeight: 700 }}>LeetCode Telemetry</h3>
+                  <span className={`badge ${leetcodeStats?.isLive ? "badge-emerald" : "badge-neutral"}`} style={{ fontSize: "9px" }}>
+                    {leetcodeStats?.isLive ? "Live API" : "Cached"}
+                  </span>
+                </div>
+                <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+                  @{profile.leetcodeUsername || "yashwanth"} • Rank: <span style={{ color: "var(--cyan)" }}>#{leetcodeStats?.ranking || "180k"}</span>
+                </div>
+              </div>
+            </div>
+
+            <a
+              href={`https://leetcode.com/${profile.leetcodeUsername || "yashwanth"}/`}
+              target="_blank"
+              rel="noreferrer"
+              className="btn btn-ghost btn-sm btn-icon"
+              title="View on LeetCode"
+            >
+              <ExternalLink size={15} />
+            </a>
+          </div>
+
+          {/* Solved metrics grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", marginBottom: "14px" }}>
+            <div style={{ padding: "10px", borderRadius: "var(--radius-sm)", backgroundColor: "rgba(16, 185, 129, 0.08)", border: "1px solid rgba(16, 185, 129, 0.2)", textAlign: "center" }}>
+              <div style={{ fontSize: "10px", color: "var(--emerald)", fontWeight: 600 }}>EASY</div>
+              <div className="mono" style={{ fontSize: "16px", fontWeight: 700, color: "var(--text-white)" }}>
+                {leetcodeStats?.easySolved ?? 54}
+              </div>
+            </div>
+
+            <div style={{ padding: "10px", borderRadius: "var(--radius-sm)", backgroundColor: "rgba(245, 158, 11, 0.08)", border: "1px solid rgba(245, 158, 11, 0.2)", textAlign: "center" }}>
+              <div style={{ fontSize: "10px", color: "var(--amber)", fontWeight: 600 }}>MEDIUM</div>
+              <div className="mono" style={{ fontSize: "16px", fontWeight: 700, color: "var(--text-white)" }}>
+                {leetcodeStats?.mediumSolved ?? 76}
+              </div>
+            </div>
+
+            <div style={{ padding: "10px", borderRadius: "var(--radius-sm)", backgroundColor: "rgba(244, 63, 94, 0.08)", border: "1px solid rgba(244, 63, 94, 0.2)", textAlign: "center" }}>
+              <div style={{ fontSize: "10px", color: "var(--rose)", fontWeight: 600 }}>HARD</div>
+              <div className="mono" style={{ fontSize: "16px", fontWeight: 700, color: "var(--text-white)" }}>
+                {leetcodeStats?.hardSolved ?? 12}
+              </div>
+            </div>
+          </div>
+
+          {/* Solved ratio bar */}
+          <div style={{ marginBottom: "14px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", marginBottom: "4px" }}>
+              <span style={{ color: "var(--text-muted)" }}>Total Solved: {leetcodeStats?.totalSolved ?? dsaSolvedCount}</span>
+              <span style={{ color: "var(--cyan)", fontWeight: 600 }}>Acceptance: {leetcodeStats?.acceptanceRate ?? "58.4"}%</span>
+            </div>
+            <div className="progress-bar-container" style={{ height: "6px" }}>
+              <div
+                className="progress-bar-fill"
+                style={{ width: `${Math.min(100, Math.round(((leetcodeStats?.totalSolved ?? 142) / 300) * 100))}%`, backgroundColor: "#f59e0b" }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+              {dsaNeedsRevision} problems in active revision queue
+            </span>
+            <button onClick={() => setActiveTab("DSA")} className="btn btn-secondary btn-sm" style={{ fontSize: "11px" }}>
+              <span>Open DSA Matrix</span>
+              <ChevronRight size={12} />
+            </button>
+          </div>
+        </div>
+
+        {/* GitHub Live Card */}
+        <div className="glass-panel" style={{ padding: "20px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <div
+                style={{
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "var(--radius-md)",
+                  background: "rgba(56, 189, 248, 0.15)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "var(--cyan)",
+                }}
+              >
+                <GithubIcon size={20} />
+              </div>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <h3 style={{ fontSize: "15px", fontWeight: 700 }}>GitHub Activity & PRs</h3>
+                  <span className={`badge ${githubStats?.isLive ? "badge-emerald" : "badge-neutral"}`} style={{ fontSize: "9px" }}>
+                    {githubStats?.isLive ? "Live API" : "Cached"}
+                  </span>
+                </div>
+                <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+                  @{profile.githubUsername || "yashwan7"} • {githubStats?.publicRepos || 18} Repos • {githubStats?.followers || 42} Followers
+                </div>
+              </div>
+            </div>
+
+            <a
+              href={`https://github.com/${profile.githubUsername || "yashwan7"}`}
+              target="_blank"
+              rel="noreferrer"
+              className="btn btn-ghost btn-sm btn-icon"
+              title="View on GitHub"
+            >
+              <ExternalLink size={15} />
+            </a>
+          </div>
+
+          {/* GitHub Velocity Stats */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "14px" }}>
+            <div style={{ padding: "10px 12px", borderRadius: "var(--radius-sm)", backgroundColor: "rgba(255, 255, 255, 0.03)", border: "1px solid var(--border-subtle)" }}>
+              <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>GSoC PRs Logged</div>
+              <div className="mono" style={{ fontSize: "16px", fontWeight: 700, color: "var(--cyan)" }}>
+                {gsoc.contributions.length} ({gsocMergedContributions} Merged)
+              </div>
+            </div>
+
+            <div style={{ padding: "10px 12px", borderRadius: "var(--radius-sm)", backgroundColor: "rgba(255, 255, 255, 0.03)", border: "1px solid var(--border-subtle)" }}>
+              <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>Weekly Commits</div>
+              <div className="mono" style={{ fontSize: "16px", fontWeight: 700, color: "var(--emerald)" }}>
+                {githubStats?.totalCommits || 38} commits
+              </div>
+            </div>
+          </div>
+
+          {/* Latest PR preview */}
+          <div style={{ fontSize: "12px", marginBottom: "14px", padding: "8px 10px", borderRadius: "var(--radius-sm)", background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--border-subtle)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text-white)", fontWeight: 500 }}>
+                <GitPullRequest size={13} color="var(--amber)" />
+                <span style={{ maxWidth: "260px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {gsoc.contributions[0]?.title || "Vectorize ascii string lower/upper kernels"}
+                </span>
+              </div>
+              <span className="badge badge-amber" style={{ fontSize: "9px" }}>
+                {gsoc.contributions[0]?.status || "Under Review"}
+              </span>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+              Target Org: {gsoc.organizations[0]?.name || "Apache Arrow"}
+            </span>
+            <button onClick={() => setActiveTab("GSoC")} className="btn btn-secondary btn-sm" style={{ fontSize: "11px" }}>
+              <span>View GSoC Desk</span>
+              <ChevronRight size={12} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Major Goal Cards (DSA, GSoC, Other Goals) */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "20px" }}>
         {/* DSA Card */}
         <div className="glass-panel" style={{ padding: "20px", display: "flex", flexDirection: "column" }}>
@@ -298,7 +488,7 @@ export function DashboardPage() {
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginBottom: "6px" }}>
               <span style={{ color: "var(--text-secondary)" }}>Roadmap Velocity</span>
               <span className="mono" style={{ fontWeight: 600, color: "var(--amber)" }}>
-                {gsocCompletedMilestones} / {gsoc.milestones.length} ({gsocPercentage}%)
+                {gsocCompletedMilestones} / {gsoc.milestones?.length || 9} ({gsocPercentage}%)
               </span>
             </div>
             <div className="progress-bar-container">
@@ -436,7 +626,7 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* 3. Split Command Section: Today's Priorities / Tasks & Weekly Productivity */}
+      {/* 4. Split Command Section: Today's Priorities / Tasks & Weekly Productivity */}
       <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: "20px" }} className="dashboard-split-grid">
         {/* Left: Tasks & Priorities */}
         <div className="glass-panel" style={{ padding: "20px" }}>

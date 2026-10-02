@@ -15,6 +15,9 @@ import {
   Loader2,
 } from "lucide-react";
 
+import { AuthModal } from "./AuthModal";
+import { DatabaseConfigModal } from "./DatabaseConfigModal";
+
 export function Modals() {
   const { activeModal, setActiveModal } = useApp();
 
@@ -27,6 +30,8 @@ export function Modals() {
         if (e.target === e.currentTarget) setActiveModal(null);
       }}
     >
+      {activeModal.type === "auth" && <AuthModal />}
+      {activeModal.type === "databaseConfig" && <DatabaseConfigModal />}
       {activeModal.type === "addTask" && <TaskModal data={activeModal.data} />}
       {activeModal.type === "addProblem" && <DsaModal data={activeModal.data} />}
       {activeModal.type === "addGoal" && <GoalModal data={activeModal.data} />}
