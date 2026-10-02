@@ -1,6 +1,31 @@
 import { createClient } from "@supabase/supabase-js";
 import { initialData } from "../data/initialData";
 
+// Helper to automatically fix and clean Supabase project URLs
+export function sanitizeSupabaseUrl(rawUrl) {
+  if (!rawUrl) return "";
+  let url = rawUrl.trim();
+
+  // If user pasted the dashboard URL from browser address bar:
+  // e.g. https://supabase.com/dashboard/project/xyzabcdef123...
+  const dashboardMatch = url.match(/supabase\.com\/dashboard\/project\/([a-zA-Z0-9_-]+)/i);
+  if (dashboardMatch && dashboardMatch[1]) {
+    url = `https://${dashboardMatch[1]}.supabase.co`;
+  }
+
+  // Remove trailing slashes and common accidental API paths
+  url = url.replace(/\/+$/, "");
+  url = url.replace(/\/(auth|rest)\/v\d+.*$/i, "");
+  url = url.replace(/\/+$/, "");
+
+  // Add https:// if protocol is missing
+  if (url && !url.startsWith("http://") && !url.startsWith("https://")) {
+    url = "https://" + url;
+  }
+
+  return url;
+}
+
 // Get configured credentials from Vite env or local storage override
 export function getSupabaseCredentials() {
   const envUrl = import.meta.env.VITE_SUPABASE_URL || "";
@@ -9,8 +34,16 @@ export function getSupabaseCredentials() {
   const storedUrl = typeof window !== "undefined" ? localStorage.getItem("shori_supabase_url") || "" : "";
   const storedKey = typeof window !== "undefined" ? localStorage.getItem("shori_supabase_anon_key") || "" : "";
 
-  const url = (storedUrl || envUrl || "").trim();
+  const rawUrl = (storedUrl || envUrl || "").trim();
   const anonKey = (storedKey || envKey || "").trim();
+  const url = sanitizeSupabaseUrl(rawUrl);
+
+  // If stored URL had formatting issues, self-heal in localStorage
+  if (typeof window !== "undefined" && storedUrl && url && storedUrl !== url) {
+    try {
+      localStorage.setItem("shori_supabase_url", url);
+    } catch {}
+  }
 
   const isValidUrl = url.startsWith("http://") || url.startsWith("https://");
   const isConfigured = Boolean(isValidUrl && anonKey && !url.includes("your-project-id"));
@@ -51,7 +84,8 @@ export function isSupabaseConfigured() {
 }
 
 export function saveCustomSupabaseConfig(url, anonKey) {
-  if (url) localStorage.setItem("shori_supabase_url", url.trim());
+  const sanitizedUrl = sanitizeSupabaseUrl(url);
+  if (sanitizedUrl) localStorage.setItem("shori_supabase_url", sanitizedUrl);
   else localStorage.removeItem("shori_supabase_url");
 
   if (anonKey) localStorage.setItem("shori_supabase_anon_key", anonKey.trim());

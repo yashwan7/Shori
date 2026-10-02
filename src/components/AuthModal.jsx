@@ -13,6 +13,7 @@ import {
   Database,
   CheckCircle2,
   ShieldAlert,
+  AlertTriangle,
   Eye,
   EyeOff,
 } from "lucide-react";
@@ -174,7 +175,7 @@ export function AuthModal() {
         {errorMsg && (
           <div
             style={{
-              padding: "10px 14px",
+              padding: "12px 14px",
               borderRadius: "var(--radius-sm)",
               backgroundColor: "rgba(244, 63, 94, 0.15)",
               border: "1px solid rgba(244, 63, 94, 0.3)",
@@ -182,11 +183,40 @@ export function AuthModal() {
               fontSize: "12px",
               marginBottom: "16px",
               display: "flex",
-              alignItems: "center",
-              gap: "8px",
+              flexDirection: "column",
+              gap: "6px",
             }}
           >
-            <span>{errorMsg}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 600 }}>
+              <AlertTriangle size={15} style={{ flexShrink: 0 }} />
+              <span>{errorMsg}</span>
+            </div>
+            {errorMsg.toLowerCase().includes("invalid path") && (
+              <div style={{ fontSize: "11px", color: "var(--text-secondary)", lineHeight: 1.5, marginTop: "2px" }}>
+                💡 <strong>How to fix:</strong> Your Supabase Project URL is misconfigured. It must be in the format:{" "}
+                <code style={{ color: "var(--cyan)", background: "rgba(0,0,0,0.3)", padding: "1px 5px", borderRadius: "3px" }}>
+                  https://[your-project-ref].supabase.co
+                </code>
+                {" "}(copied from Supabase <strong>Project Settings &rarr; API &rarr; Project URL</strong>, NOT your browser dashboard URL).
+                <button
+                  type="button"
+                  onClick={() => setActiveModal({ type: "databaseConfig" })}
+                  style={{
+                    display: "block",
+                    marginTop: "6px",
+                    color: "var(--cyan)",
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    textDecoration: "underline",
+                    cursor: "pointer",
+                    fontWeight: 600,
+                  }}
+                >
+                  &rarr; Click here to open Database Settings and paste correct URL
+                </button>
+              </div>
+            )}
           </div>
         )}
 
